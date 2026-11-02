@@ -1,7 +1,10 @@
 import SiteImage from "../components/SiteImage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import api from "../lib/api";
 import { getBearPhoto } from "../lib/bearPhotos";
+import { WILDLIFE_VIDEOS } from "../lib/wildlifeVideos";
+import YouTubePlayer from "../components/YouTubePlayer";
 
 const demoVideos = [
   {
@@ -45,6 +48,7 @@ const demoVideos = [
 ];
 
 function VideoCard({ video, onPlay }) {
+  const [thumbnailLoading, setThumbnailLoading] = useState(true);
   const demo = Boolean(video.source);
   const poster = demo
     ? video.poster
@@ -55,14 +59,17 @@ function VideoCard({ video, onPlay }) {
     <article className="group overflow-hidden rounded-2xl border border-white/10 bg-[#0a211b] shadow-lg shadow-black/20 transition duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:shadow-2xl">
       <button
         type="button"
-        onClick={() => onPlay(video)}
+        onClick={(event) => onPlay(video, event.currentTarget)}
         aria-label={`Play ${title}`}
         className="relative block aspect-video w-full overflow-hidden bg-black text-left"
       >
+        {thumbnailLoading && <span aria-hidden="true" className="absolute inset-0 animate-pulse bg-emerald-950" />}
         <SiteImage
           src={poster}
           alt={`Video thumbnail: ${title}`}
           loading="lazy"
+          decoding="async"
+          onLoad={() => setThumbnailLoading(false)}
           className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
 
         />
@@ -78,11 +85,12 @@ function VideoCard({ video, onPlay }) {
       </button>
 
       <div className="p-5 sm:p-6">
+        {video.location && <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">{video.category} · {video.location}</p>}
         <h3 className="text-lg font-bold leading-snug text-white sm:text-xl">{title}</h3>
         {video.description && (
           <p className="mt-2 line-clamp-3 text-sm leading-6 text-gray-300">{video.description}</p>
         )}
-        {demo && <p className="mt-4 text-xs font-medium text-emerald-300/80">{video.credit}</p>}
+        {demo && <a href={video.source} target="_blank" rel="noreferrer" className="mt-4 inline-block text-xs font-medium text-emerald-700 underline underline-offset-4 hover:text-emerald-900">{video.credit} · Original video ↗</a>}
       </div>
     </article>
   );
@@ -95,6 +103,28 @@ function Videos() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [playerFailed, setPlayerFailed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const closeButton = useRef(null);
+  const playerOpener = useRef(null);
+
+  useEffect(() => {
+    if (!selectedVideo) return;
+    const opener = playerOpener.current || document.activeElement;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButton.current?.focus();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setSelectedVideo(null);
+      if (event.key === "Tab") {
+        const controls = closeButton.current?.parentElement.querySelectorAll('button, a[href], iframe, video[controls]');
+        const first = controls?.[0];
+        const last = controls?.[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => { document.body.style.overflow = overflow; window.removeEventListener("keydown", onKeyDown); opener?.focus(); };
+  }, [selectedVideo]);
 
   useEffect(() => {
     let active = true;
@@ -125,7 +155,8 @@ function Videos() {
     };
   }, []);
 
-  const playVideo = (video) => {
+  const playVideo = (video, trigger) => {
+    playerOpener.current = trigger || document.activeElement;
     setPlayerFailed(false);
     setSelectedVideo(video);
   };
@@ -161,6 +192,18 @@ function Videos() {
           <p className="mt-5 max-w-2xl text-base leading-7 text-gray-200 sm:text-lg">
             Watch Indian sloth bears explore, forage and move through their habitats. Each film is credited to its source; stock footage is not represented as a Ratan Mahal recording.
           </p>
+        </div>
+      </section>
+
+      <section aria-labelledby="wildlife-films-title" className="mx-auto max-w-7xl px-5 pt-14 sm:pt-16 lg:px-8">
+        <div className="mb-8 max-w-3xl">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400">Field notes · Indian wildlife</p>
+          <h2 id="wildlife-films-title" className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">Small Moments. Wild Lives.</h2>
+          <p className="mt-4 text-sm leading-7 text-gray-300">Four windows into the world of the Indian sloth bear, from forest trails to family life. Filmed elsewhere in India; these are not recordings from Ratan Mahal.</p>
+          <p className="mt-3 text-xs leading-6 text-gray-400">Thumbnails load from YouTube. The privacy-enhanced player loads only when you choose a film. Press play in the player to begin.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          {WILDLIFE_VIDEOS.map(video => <VideoCard key={video.id} video={video} onPlay={playVideo} />)}
         </div>
       </section>
 
@@ -205,7 +248,7 @@ function Videos() {
               {usingDemoCollection ? (
                 <button
                   type="button"
-                  onClick={() => playVideo(featuredVideo)}
+                  onClick={(event) => playVideo(featuredVideo, event.currentTarget)}
                   aria-label={`Play ${featuredVideo.title}`}
                   className="group relative block aspect-video overflow-hidden bg-black text-left lg:aspect-auto lg:min-h-[390px]"
                 >
@@ -222,7 +265,7 @@ function Videos() {
                   </span>
                 </button>
               ) : (
-                <button type="button" onClick={() => playVideo(featuredVideo)} aria-label={`Play ${featuredVideo.title}`} className="group relative block aspect-video overflow-hidden bg-black text-left lg:aspect-auto lg:min-h-[390px]">
+                <button type="button" onClick={(event) => playVideo(featuredVideo, event.currentTarget)} aria-label={`Play ${featuredVideo.title}`} className="group relative block aspect-video overflow-hidden bg-black text-left lg:aspect-auto lg:min-h-[390px]">
                   <SiteImage src={featuredVideo.thumbnail || getBearPhoto(featuredVideo.posterIndex).src} alt={`Indian sloth bear video thumbnail: ${featuredVideo.title}`} fetchPriority="high" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                   <span className="absolute inset-0 bg-black/20 transition group-hover:bg-black/35" />
                   <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-black/35 text-2xl text-white shadow-xl backdrop-blur-sm transition group-hover:scale-110 group-hover:bg-emerald-600"><span className="ml-1" aria-hidden="true">▶</span></span>
@@ -235,7 +278,7 @@ function Videos() {
                 {usingDemoCollection ? (
                   <p className="mt-5 text-xs font-medium text-emerald-200/80">{featuredVideo.credit} · Pexels stock footage</p>
                 ) : (
-                  <button type="button" onClick={() => playVideo(featuredVideo)} className="mt-6 inline-flex w-fit items-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-bold transition hover:bg-emerald-500">
+                  <button type="button" onClick={(event) => playVideo(featuredVideo, event.currentTarget)} className="mt-6 inline-flex w-fit items-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-bold transition hover:bg-emerald-500">
                     Watch film <span aria-hidden="true">▶</span>
                   </button>
                 )}
@@ -281,11 +324,11 @@ function Videos() {
         </div>
       </section>
 
-      {selectedVideo && (
-        <div role="dialog" aria-modal="true" aria-label={`Video player: ${selectedVideo.title || "Sloth bear video"}`} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4" onClick={() => setSelectedVideo(null)}>
-          <div className="relative w-full max-w-5xl" onClick={(event) => event.stopPropagation()}>
-            <button type="button" onClick={() => setSelectedVideo(null)} className="absolute -right-1 -top-12 rounded-full bg-white px-4 py-2 text-lg font-bold text-[#061a17] transition hover:bg-emerald-300" aria-label="Close video">✕</button>
-            <div className="aspect-video overflow-hidden rounded-xl bg-black">
+      {selectedVideo && createPortal(
+        <div role="dialog" aria-modal="true" aria-label={`Video player: ${selectedVideo.title || "Sloth bear video"}`} className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/90 p-4" onClick={() => setSelectedVideo(null)}>
+          <div className="relative my-auto max-h-[95dvh] w-full max-w-5xl overflow-y-auto pt-12" onClick={(event) => event.stopPropagation()}>
+            <button ref={closeButton} type="button" onClick={() => setSelectedVideo(null)} className="absolute right-0 top-0 rounded-full bg-white px-4 py-2 text-lg font-bold text-[#061a17] transition hover:bg-emerald-300" aria-label="Close video">✕</button>
+            <div className="aspect-video min-h-[200px] overflow-hidden rounded-xl bg-black">
               {playerFailed ? (
                 <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-white">
                   <p>This video could not be played here.</p>
@@ -298,30 +341,22 @@ function Videos() {
                   src={selectedVideo.playableUrl}
                   poster={selectedVideo.poster}
                   controls
-                  autoPlay
                   playsInline
                   preload="none"
                   onError={() => setPlayerFailed(true)}
 
                 />
               ) : (
-                <iframe
-                  className="h-full w-full"
-                  src={`https://www.youtube.com/embed/${encodeURIComponent(selectedVideo.youtubeId || "")}?autoplay=1&controls=1&rel=0`}
-                  title={selectedVideo.title || "Sloth bear wildlife video"}
-                  allow="autoplay; encrypted-media; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                  onError={() => setPlayerFailed(true)}
-                />
+                <YouTubePlayer key={selectedVideo.youtubeId} videoId={selectedVideo.youtubeId || ""} title={selectedVideo.title || "Sloth bear wildlife video"} />
               )}
             </div>
             <div className="mt-3 rounded-xl border border-[#E3EAE4] bg-white p-5 text-center">
               <h3 className="text-xl font-bold text-[#183D2B]">{selectedVideo.title}</h3>
               {selectedVideo.description && <p className="mt-2 text-sm leading-6 text-[#536257]">{selectedVideo.description}</p>}
+              <a href={selectedVideo.source || `https://www.youtube.com/watch?v=${encodeURIComponent(selectedVideo.youtubeId || "")}`} target="_blank" rel="noreferrer" className="mt-3 inline-block text-sm font-semibold text-emerald-800 underline underline-offset-4">{selectedVideo.credit ? `${selectedVideo.credit} · ` : ""}Watch original video ↗</a>
             </div>
           </div>
-        </div>
+        </div>, document.body
       )}
     </main>
   );
