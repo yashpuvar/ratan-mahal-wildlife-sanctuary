@@ -229,6 +229,47 @@ header .text-gray-200 {
   );
 }
 
+.homepage-hero {
+  background-color: #020d0a;
+  isolation: isolate;
+}
+
+/* Keep the bear's face above the copy instead of cropping a landscape photo
+   across the entire tall mobile hero. Reuse the original JPEG without a second download. */
+@media (max-width: 767px) {
+  .homepage-hero {
+    --hero-photo-height: clamp(24rem, 110vw, 32rem);
+  }
+
+  .homepage-hero__media,
+  .homepage-hero__shade {
+    bottom: auto;
+    height: var(--hero-photo-height);
+  }
+
+  .homepage-hero__media img {
+    object-position: 62% center;
+    animation: none;
+  }
+
+  .homepage-hero__vignette {
+    background: none;
+  }
+
+  .homepage-hero__shade {
+    background: linear-gradient(to bottom, transparent 30%, rgba(2, 13, 10, 0.18) 50%, #020d0a 100%);
+  }
+
+  .homepage-hero__content {
+    padding-top: clamp(17rem, 75vw, 24rem);
+    padding-bottom: 3rem;
+  }
+
+  .homepage-hero__content h1 {
+    font-size: clamp(2.25rem, 10vw, 3.5rem);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

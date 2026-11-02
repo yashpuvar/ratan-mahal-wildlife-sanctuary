@@ -111,22 +111,25 @@ function Home() {
   return (
     <main className="bg-[#020d0a] text-white">
       {/* 1. CINEMATIC HERO SECTION */}
-      <section className="relative flex min-h-[92vh] flex-col justify-between overflow-hidden bg-[#020d0a]">
+      <section className="homepage-hero relative flex min-h-[92vh] flex-col justify-between overflow-hidden">
         {/* Background Image with Slow Motion Ken-Burns Effect */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="homepage-hero__media absolute inset-0 overflow-hidden">
           <SiteImage
             src={getBearPhoto(0).src}
             alt="Sloth Bear in Ratan Mahal"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             className="h-full w-full object-cover object-center animate-cinematic"
           />
         </div>
 
         {/* Cinematic Vignette Overlay */}
-        <div className="cinematic-vignette absolute inset-0" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020d0a] via-transparent to-[#020d0a]/70" />
+        <div className="homepage-hero__vignette cinematic-vignette absolute inset-0" />
+        <div className="homepage-hero__shade absolute inset-0 bg-gradient-to-t from-[#020d0a] via-transparent to-[#020d0a]/70" />
 
         {/* Hero Content */}
-        <div className="photo-copy relative mx-auto flex w-full max-w-7xl flex-1 items-center px-6 py-28">
+        <div className="homepage-hero__content photo-copy relative mx-auto flex w-full max-w-7xl flex-1 items-center px-6 py-28">
           <div className="max-w-3xl">
             {/* Tag Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-950/70 px-4 py-1.5 backdrop-blur-md">

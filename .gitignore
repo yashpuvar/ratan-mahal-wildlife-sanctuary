@@ -5,6 +5,8 @@ dist/
 build/
 **/build/
 coverage/
+**/test-results/
+**/playwright-report/
 **/coverage/
 .env
 .env.*
