@@ -9,9 +9,32 @@ export default function VisitorPhotoManagement() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [previews, setPreviews] = useState({});
-  const load = async () => { try { setError(""); const { data } = await api.get("/api/gallery/visitor/admin/pending"); const items = data.data || []; setPhotos(items); const entries = await Promise.all(items.map(async (photo) => { const response = await api.get(`/api/gallery/visitor/admin/${photo._id}/image`, { responseType: "blob" }); return [photo._id, URL.createObjectURL(response.data)]; })); setPreviews(Object.fromEntries(entries)); } catch (requestError) { console.error("Pending photo load failed", requestError); setError(requestError.response?.data?.message || "Could not load visitor submissions."); } finally { setLoading(false); } };
-  useEffect(() => { load(); }, []);
-  useEffect(() => () => Object.values(previews).forEach((url) => URL.revokeObjectURL(url)), [previews]);
+  useEffect(() => {
+    let active = true;
+    const urls = [];
+    const load = async () => {
+      try {
+        const { data } = await api.get("/api/gallery/visitor/admin/pending");
+        const items = data.data || [];
+        if (!active) return;
+        setPhotos(items);
+        const entries = await Promise.all(items.map(async (photo) => {
+          const response = await api.get(`/api/gallery/visitor/admin/${photo._id}/image`, { responseType: "blob" });
+          if (!active) return null;
+          const url = URL.createObjectURL(response.data);
+          urls.push(url);
+          return [photo._id, url];
+        }));
+        if (active) setPreviews(Object.fromEntries(entries.filter(Boolean)));
+      } catch (requestError) {
+        if (active) setError(requestError.response?.data?.message || "Could not load visitor submissions.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    load();
+    return () => { active = false; urls.forEach((url) => URL.revokeObjectURL(url)); };
+  }, []);
   const moderate = async (photo, action) => {
     setMessage(""); setError("");
     try {

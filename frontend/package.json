@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "node --test test/*.test.mjs",
     "test:hero": "npm run build && playwright test",
     "preview": "vite preview"
   },

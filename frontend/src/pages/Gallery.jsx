@@ -72,7 +72,13 @@ function Gallery() {
     window.addEventListener("authChanged", update);
     return () => window.removeEventListener("authChanged", update);
   }, []);
-  useEffect(() => { if (!uploadForm.photo) { setPreview(""); return; } const url = URL.createObjectURL(uploadForm.photo); setPreview(url); return () => URL.revokeObjectURL(url); }, [uploadForm.photo]);
+  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
+
+  const selectPhoto = (event) => {
+    const photo = event.target.files?.[0] || null;
+    setUploadForm((form) => ({ ...form, photo }));
+    setPreview(photo ? URL.createObjectURL(photo) : "");
+  };
 
   const submitPhoto = async (event) => {
     event.preventDefault(); setUploadError(""); setUploadMessage("");
@@ -81,7 +87,7 @@ function Gallery() {
     const body = new FormData();
     Object.entries(uploadForm).forEach(([key, value]) => { if (key === "photo") body.append("photo", value); else body.append(key, value); });
     setUploading(true);
-    try { await api.post("/api/gallery/visitor", body); setUploadMessage("Your photo has been submitted successfully and will appear in the Gallery after Admin approval."); setUploadForm({ displayName: "", title: "", description: "", location: "", consent: false, photo: null }); }
+    try { await api.post("/api/gallery/visitor", body); setUploadMessage("Your photo has been submitted successfully and will appear in the Gallery after Admin approval."); setUploadForm({ displayName: "", title: "", description: "", location: "", consent: false, photo: null }); setPreview(""); event.target.reset(); }
     catch (error) { setUploadError(error.response?.data?.message || "Photo upload failed. Please try again."); }
     finally { setUploading(false); }
   };
@@ -166,7 +172,7 @@ function Gallery() {
 
       {uploadOpen && <div className="fixed inset-0 z-[90] grid place-items-center overflow-y-auto bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="upload-title" onClick={() => setUploadOpen(false)}><form onSubmit={submitPhoto} onClick={(event) => event.stopPropagation()} className="my-8 w-full max-w-xl rounded-3xl bg-white p-6 text-[#183D2B] shadow-2xl sm:p-8"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Visitor Moments</p><h2 id="upload-title" className="mt-2 text-2xl font-bold">Share a wildlife photograph</h2></div><button type="button" onClick={() => setUploadOpen(false)} aria-label="Close form" className="text-2xl">×</button></div>
         {uploadMessage && <p role="status" className="mt-5 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">{uploadMessage}</p>}{uploadError && <p role="alert" className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-800">{uploadError}</p>}
-        <div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-sm font-semibold">Your display name<input required maxLength="80" value={uploadForm.displayName} onChange={(e) => setUploadForm({ ...uploadForm, displayName: e.target.value })} className="mt-2 w-full rounded-xl border p-3" /></label><label className="text-sm font-semibold">Photo title<input required maxLength="120" value={uploadForm.title} onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })} className="mt-2 w-full rounded-xl border p-3" /></label><label className="text-sm font-semibold sm:col-span-2">Description (optional)<textarea maxLength="500" value={uploadForm.description} onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })} className="mt-2 w-full rounded-xl border p-3" rows="3" /></label><label className="text-sm font-semibold sm:col-span-2">Location (optional)<input maxLength="120" value={uploadForm.location} onChange={(e) => setUploadForm({ ...uploadForm, location: e.target.value })} className="mt-2 w-full rounded-xl border p-3" /></label><label className="text-sm font-semibold sm:col-span-2">Photo (JPG, PNG or WebP, up to 5 MB)<input required type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setUploadForm({ ...uploadForm, photo: e.target.files?.[0] || null })} className="mt-2 w-full rounded-xl border p-3" /></label></div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-sm font-semibold">Your display name<input required maxLength="80" value={uploadForm.displayName} onChange={(e) => setUploadForm({ ...uploadForm, displayName: e.target.value })} className="mt-2 w-full rounded-xl border p-3" /></label><label className="text-sm font-semibold">Photo title<input required maxLength="120" value={uploadForm.title} onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })} className="mt-2 w-full rounded-xl border p-3" /></label><label className="text-sm font-semibold sm:col-span-2">Description (optional)<textarea maxLength="500" value={uploadForm.description} onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })} className="mt-2 w-full rounded-xl border p-3" rows="3" /></label><label className="text-sm font-semibold sm:col-span-2">Location (optional)<input maxLength="120" value={uploadForm.location} onChange={(e) => setUploadForm({ ...uploadForm, location: e.target.value })} className="mt-2 w-full rounded-xl border p-3" /></label><label className="text-sm font-semibold sm:col-span-2">Photo (JPG, PNG or WebP, up to 5 MB)<input required type="file" accept="image/jpeg,image/png,image/webp" onChange={selectPhoto} className="mt-2 w-full rounded-xl border p-3" /></label></div>
         {preview && <SiteImage src={preview} alt="Selected photo preview" className="mt-4 max-h-64 w-full rounded-xl object-contain bg-stone-100" />}
         <label className="mt-5 flex gap-3 text-sm"><input type="checkbox" checked={uploadForm.consent} onChange={(e) => setUploadForm({ ...uploadForm, consent: e.target.checked })} required /><span>I confirm that I own this photograph or have permission to share it publicly.</span></label><button disabled={uploading} className="mt-5 w-full rounded-full bg-[#245C3B] px-5 py-3 font-bold text-white disabled:opacity-60">{uploading ? "Submitting…" : "Submit for Admin Approval"}</button>
       </form></div>}

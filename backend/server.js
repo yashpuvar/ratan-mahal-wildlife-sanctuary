@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const path = require("node:path");
 
-dotenv.config();
+// Deployment environment variables retain precedence over the local file.
+dotenv.config({ path: path.join(__dirname, ".env"), quiet: true });
 
 const connectDB = require("./config/db");
 
@@ -62,7 +64,6 @@ const startServer = async () => {
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
     throw new Error("JWT_SECRET must be configured with at least 32 characters");
   }
-  if (!process.env.MONGODB_URI) throw new Error("MONGODB_URI is required");
   await connectDB();
 
   app.listen(PORT, () => {
@@ -70,4 +71,10 @@ const startServer = async () => {
   });
 };
 
-startServer();
+startServer().catch(() => {
+  // connectDB reports sanitized errors; never dump a raw driver error or URI.
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    console.error("JWT_SECRET must be configured with at least 32 characters");
+  }
+  process.exitCode = 1;
+});

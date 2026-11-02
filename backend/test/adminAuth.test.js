@@ -1,4 +1,4 @@
-require("dotenv").config({ quiet: true });
+process.env.JWT_SECRET = "isolated-test-secret-at-least-32-characters";
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const bcrypt = require("bcryptjs");
