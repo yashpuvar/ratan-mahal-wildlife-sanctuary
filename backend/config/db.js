@@ -34,9 +34,12 @@ const connectDB = async () => {
     throw error;
   }
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    // An explicit database avoids Atlas URIs without a path silently using "test".
+    // Keep URI-selected databases unchanged unless an override is configured.
+    const dbName = process.env.MONGODB_DB_NAME?.trim();
+    await mongoose.connect(process.env.MONGODB_URI, dbName ? { dbName } : {});
 
-    console.log("MongoDB connected successfully");
+    console.log(`MongoDB connected successfully (database: ${mongoose.connection.name})`);
   } catch (error) {
     const message = connectionErrorMessage(error);
     console.error(message);

@@ -1,6 +1,29 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const { validateMongoUri, connectionErrorMessage } = require("../config/db");
+const mongoose = require("mongoose");
+const connectDB = require("../config/db");
+
+test("explicit database selection reaches the driver without rewriting the URI", async (t) => {
+  const uri = "mongodb://127.0.0.1:27017/uriDatabase";
+  const previousUri = process.env.MONGODB_URI;
+  const previousDb = process.env.MONGODB_DB_NAME;
+  t.after(() => {
+    if (previousUri === undefined) delete process.env.MONGODB_URI;
+    else process.env.MONGODB_URI = previousUri;
+    if (previousDb === undefined) delete process.env.MONGODB_DB_NAME;
+    else process.env.MONGODB_DB_NAME = previousDb;
+  });
+  process.env.MONGODB_URI = uri;
+  const calls = [];
+  t.mock.method(mongoose, "connect", async (...args) => { calls.push(args); });
+  t.mock.method(console, "log", () => {});
+  process.env.MONGODB_DB_NAME = " RatanMahal ";
+  await connectDB();
+  delete process.env.MONGODB_DB_NAME;
+  await connectDB();
+  assert.deepEqual(calls, [[uri, { dbName: "RatanMahal" }], [uri, {}]]);
+});
 
 test("accepts local, Atlas encoded credentials, and multi-host URIs", () => {
   for (const uri of [

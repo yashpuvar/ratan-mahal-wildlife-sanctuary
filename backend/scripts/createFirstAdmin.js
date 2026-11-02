@@ -1,14 +1,15 @@
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const Admin = require("../models/Admin");
+const connectDB = require("../config/db");
 
-dotenv.config({ quiet: true });
+dotenv.config({ path: require("node:path").join(__dirname, "..", ".env"), quiet: true });
 
 const fail = (message) => { throw new Error(message); };
 
 async function createFirstAdmin() {
   if (!process.env.MONGODB_URI) fail("MONGODB_URI must be configured in the backend environment");
-  await mongoose.connect(process.env.MONGODB_URI);
+  await connectDB();
 
   const existingCount = await Admin.countDocuments();
   if (existingCount > 0) {
