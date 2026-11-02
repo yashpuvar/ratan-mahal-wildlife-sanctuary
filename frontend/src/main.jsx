@@ -6,12 +6,22 @@ import "./index.css";
 import App from "./App.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() || "";
+
+if (!googleClientId) {
+  console.error("Google OAuth is unavailable because VITE_GOOGLE_CLIENT_ID was not present at build time.");
+}
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ErrorBoundary>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      {googleClientId ? (
+        <GoogleOAuthProvider clientId={googleClientId}>
+          <App />
+        </GoogleOAuthProvider>
+      ) : (
         <App />
-      </GoogleOAuthProvider>
+      )}
     </ErrorBoundary>
   </StrictMode>
 );

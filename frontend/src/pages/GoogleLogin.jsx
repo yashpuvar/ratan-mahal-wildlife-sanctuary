@@ -5,6 +5,7 @@ import { useState } from "react";
 import api from "../lib/api";
 
 function GoogleLoginPage() {
+  const googleClientIdConfigured = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim());
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -49,15 +50,21 @@ function GoogleLoginPage() {
         {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         {loading && <p className="mb-4 text-sm text-gray-600">Signing you in…</p>}
 
-        <div className="flex justify-center">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            useOneTap={false}
-            onError={() => {
-              setError("Google sign-in was cancelled or could not start. Please try again.");
-            }}
-          />
-        </div>
+        {googleClientIdConfigured ? (
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              useOneTap={false}
+              onError={() => {
+                setError("Google sign-in was cancelled or could not start. Please try again.");
+              }}
+            />
+          </div>
+        ) : (
+          <p role="alert" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+            Google sign-in is not configured for this deployment. Please try again later or contact the site administrator.
+          </p>
+        )}
 
       </div>
     </div>
