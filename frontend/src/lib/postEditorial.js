@@ -21,9 +21,11 @@ export function getPostCategory(post) {
 }
 
 export function getPostPhoto(post, index = 0) {
-  const image = String(post?.image || "");
-  // User-submitted post images are served from this local directory only.
-  if (/^\/images\/posts\/[a-z0-9][a-z0-9._-]*\.(?:jpe?g|png|webp)$/i.test(image)) {
+  const image = String(post?.image || "").trim();
+  const approved = BEAR_PHOTOS.find((photo) => photo.src === image);
+  if (approved) return approved;
+  // Preserve saved post images; SiteImage resolves their storage origin.
+  if (image) {
     return {
       src: image,
       alt: post?.imageAlt || "Forest-covered hills fading into a soft blue haze",

@@ -1,3 +1,4 @@
+import SiteImage from "../components/SiteImage";
 import { useEffect, useMemo, useState } from "react";
 import { DEMO_GALLERY, GALLERY_CATEGORIES } from "../lib/galleryPhotos";
 import api from "../lib/api";
@@ -102,12 +103,12 @@ function Gallery() {
   }, [filteredImages.length, selectedImage]);
 
   const showNeighbor = (offset) => setSelectedIndex((index) => (index + offset + filteredImages.length) % filteredImages.length);
-  const fallbackImage = DEMO_GALLERY[0].image;
+
 
   return (
     <main className="min-h-screen bg-[#071b16] text-white">
       <section className="relative isolate flex min-h-[390px] items-end overflow-hidden md:min-h-[520px]">
-        <img src={DEMO_GALLERY[0].image} alt="Indian sloth bear in its forest habitat" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" fetchPriority="high" />
+        <SiteImage src={DEMO_GALLERY[0].image} alt="Indian sloth bear in its forest habitat" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" fetchPriority="high" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#061711] via-[#061711]/55 to-[#061711]/20" />
         <div className="photo-copy mx-auto w-full max-w-7xl px-5 pb-14 pt-28 md:pb-20">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-300 md:text-sm">A wildlife photo collection</p>
@@ -141,7 +142,7 @@ function Gallery() {
               <p className="mt-6 text-sm text-[#637267]">{filteredImages.length} photographs</p>
               <div className="mt-5 grid auto-rows-[210px] grid-cols-1 gap-4 sm:grid-cols-2 lg:auto-rows-[235px] lg:grid-cols-3 xl:grid-cols-4">
                 {filteredImages.map((item, index) => <button key={item.id} type="button" onClick={() => setSelectedIndex(index)} className={`group relative overflow-hidden rounded-2xl bg-[#dce4da] text-left shadow-sm outline-none ring-emerald-600 focus-visible:ring-4 ${index % 7 === 0 ? "sm:row-span-2 lg:col-span-2" : ""}`} aria-label={`Open photograph: ${item.title}`}>
-                  <img src={item.image} alt={item.title || "Indian sloth bear"} loading={index === 0 ? "eager" : "lazy"} decoding="async" onError={(event) => { if (event.currentTarget.src !== fallbackImage) event.currentTarget.src = fallbackImage; }} className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.04]" />
+                  <SiteImage src={item.image} alt={item.title || "Indian sloth bear"} loading={index === 0 ? "eager" : "lazy"} decoding="async"  className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.04]" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/0 to-black/0 opacity-80 transition group-hover:opacity-100" />
                   <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                     <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200">{item.category}</span>
@@ -166,7 +167,7 @@ function Gallery() {
       {uploadOpen && <div className="fixed inset-0 z-[90] grid place-items-center overflow-y-auto bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="upload-title" onClick={() => setUploadOpen(false)}><form onSubmit={submitPhoto} onClick={(event) => event.stopPropagation()} className="my-8 w-full max-w-xl rounded-3xl bg-white p-6 text-[#183D2B] shadow-2xl sm:p-8"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Visitor Moments</p><h2 id="upload-title" className="mt-2 text-2xl font-bold">Share a wildlife photograph</h2></div><button type="button" onClick={() => setUploadOpen(false)} aria-label="Close form" className="text-2xl">×</button></div>
         {uploadMessage && <p role="status" className="mt-5 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">{uploadMessage}</p>}{uploadError && <p role="alert" className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-800">{uploadError}</p>}
         <div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-sm font-semibold">Your display name<input required maxLength="80" value={uploadForm.displayName} onChange={(e) => setUploadForm({ ...uploadForm, displayName: e.target.value })} className="mt-2 w-full rounded-xl border p-3" /></label><label className="text-sm font-semibold">Photo title<input required maxLength="120" value={uploadForm.title} onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })} className="mt-2 w-full rounded-xl border p-3" /></label><label className="text-sm font-semibold sm:col-span-2">Description (optional)<textarea maxLength="500" value={uploadForm.description} onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })} className="mt-2 w-full rounded-xl border p-3" rows="3" /></label><label className="text-sm font-semibold sm:col-span-2">Location (optional)<input maxLength="120" value={uploadForm.location} onChange={(e) => setUploadForm({ ...uploadForm, location: e.target.value })} className="mt-2 w-full rounded-xl border p-3" /></label><label className="text-sm font-semibold sm:col-span-2">Photo (JPG, PNG or WebP, up to 5 MB)<input required type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setUploadForm({ ...uploadForm, photo: e.target.files?.[0] || null })} className="mt-2 w-full rounded-xl border p-3" /></label></div>
-        {preview && <img src={preview} alt="Selected photo preview" className="mt-4 max-h-64 w-full rounded-xl object-contain bg-stone-100" />}
+        {preview && <SiteImage src={preview} alt="Selected photo preview" className="mt-4 max-h-64 w-full rounded-xl object-contain bg-stone-100" />}
         <label className="mt-5 flex gap-3 text-sm"><input type="checkbox" checked={uploadForm.consent} onChange={(e) => setUploadForm({ ...uploadForm, consent: e.target.checked })} required /><span>I confirm that I own this photograph or have permission to share it publicly.</span></label><button disabled={uploading} className="mt-5 w-full rounded-full bg-[#245C3B] px-5 py-3 font-bold text-white disabled:opacity-60">{uploading ? "Submitting…" : "Submit for Admin Approval"}</button>
       </form></div>}
 
@@ -174,7 +175,7 @@ function Gallery() {
         <button type="button" onClick={() => showNeighbor(-1)} className="absolute left-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-2xl text-white backdrop-blur hover:bg-white/30 sm:left-6" aria-label="Previous photo">‹</button>
         <div className="relative flex max-h-[92vh] w-full max-w-5xl flex-col" onClick={(event) => event.stopPropagation()}>
           <button type="button" onClick={() => setSelectedIndex(null)} className="absolute -top-12 right-0 rounded-full px-4 py-2 text-white hover:bg-white/15" aria-label="Close photo viewer">Close ×</button>
-          <img src={selectedImage.image} alt={selectedImage.title || "Indian sloth bear"} onError={(event) => { if (event.currentTarget.src !== fallbackImage) event.currentTarget.src = fallbackImage; }} className="max-h-[72vh] w-full rounded-xl object-contain" />
+          <SiteImage src={selectedImage.image} alt={selectedImage.title || "Indian sloth bear"}  className="max-h-[72vh] w-full rounded-xl object-contain" />
           <div className="mt-3 flex flex-col gap-3 rounded-xl bg-[#10251b] p-4 text-white sm:flex-row sm:items-end sm:justify-between sm:p-5">
             <div><p className="text-xs font-bold uppercase tracking-widest text-emerald-300">{selectedImage.category}</p><h3 className="mt-1 font-serif text-xl font-semibold">{selectedImage.title}</h3><p className="mt-1 text-sm text-white/75">{selectedImage.description}</p></div>
             <a href={selectedImage.source || "https://commons.wikimedia.org/"} target="_blank" rel="noreferrer" className="shrink-0 text-xs text-emerald-200 underline underline-offset-4">Photo: {selectedImage.credit}{selectedImage.license ? ` · ${selectedImage.license}` : ""}</a>

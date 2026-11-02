@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from "react";
+import SiteImage from "../components/SiteImage";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../lib/api";
 import { getBearPhoto } from "../lib/bearPhotos";
@@ -113,7 +114,7 @@ function Home() {
       <section className="relative flex min-h-[92vh] flex-col justify-between overflow-hidden bg-[#020d0a]">
         {/* Background Image with Slow Motion Ken-Burns Effect */}
         <div className="absolute inset-0 overflow-hidden">
-          <img
+          <SiteImage
             src={getBearPhoto(0).src}
             alt="Sloth Bear in Ratan Mahal"
             className="h-full w-full object-cover object-center animate-cinematic"
@@ -249,11 +250,11 @@ function Home() {
                 className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#061e17] transition duration-500 hover:-translate-y-2 hover:border-emerald-500/40 hover:shadow-2xl hover:shadow-emerald-950/60"
               >
                 <div className="relative h-56 overflow-hidden">
-                  <img
+                  <SiteImage
                     src={post.image || getBearPhoto(index).src}
                     alt={post.image?.startsWith("/images/posts/") ? "Forest-covered hills fading into a soft blue haze" : `Illustrative wildlife image for ${post.title}`}
                     loading="lazy"
-                    onError={(event) => { event.currentTarget.src = getBearPhoto(index).src; }}
+
                     className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#061e17] via-transparent to-transparent opacity-80" />
@@ -316,7 +317,7 @@ function Home() {
                 to="/gallery"
                 className="group relative h-48 overflow-hidden rounded-xl border border-white/10 md:h-64"
               >
-                <img
+                <SiteImage
                   src={item.image}
                   alt={item.title}
                   className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
@@ -354,7 +355,7 @@ function Home() {
               const photo = getBearPhoto(photoIndex);
               return (
                 <figure key={photo.id} className={`group relative overflow-hidden rounded-2xl ${index === 0 || index === 3 ? "h-48 sm:h-56" : "mt-6 h-48 sm:h-56"}`}>
-                  <img src={photo.src} alt={photo.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                  <SiteImage src={photo.src} alt={photo.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                   <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-10 text-xs font-semibold text-white">{photo.alt}</figcaption>
                 </figure>
               );
@@ -366,7 +367,7 @@ function Home() {
       {/* Stay spotlight */}
       <section className="relative overflow-hidden border-t border-[#E3EAE4] bg-white py-20 text-[#333333] md:py-24">
         <div className="absolute inset-0">
-          <img
+          <SiteImage
             src="/images/hotel/wooden-cottage.jpg"
             alt="Illustrative forest cottage in a green landscape"
             loading="lazy"
@@ -414,7 +415,7 @@ function Home() {
                 { type: "Hotel Room", image: "/images/hotel/premium-bedroom.jpg" },
                 { type: "Rest House", image: "/images/hotel/wooden-cottage.jpg" },
               ].map((option) => <Link key={option.type} to="/stay" className="group relative min-h-48 overflow-hidden rounded-2xl border border-[#E3EAE4] bg-white shadow-lg shadow-[#183D2B]/[0.08]">
-                <img src={option.image} alt={`Illustrative stock photo for ${option.type}`} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                <SiteImage src={option.image} alt={`Illustrative stock photo for ${option.type}`} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                 <div className="absolute inset-x-0 bottom-0 bg-white/95 p-5 backdrop-blur-sm">
                   <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#287A4B]">Enquiry option</p>
                   <h3 className="mt-1 text-lg font-bold text-[#183D2B]">{option.type}</h3>

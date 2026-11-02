@@ -1,3 +1,4 @@
+import SiteImage from "../components/SiteImage";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../lib/api";
@@ -15,15 +16,12 @@ export function PostCard({ post, index, photo: suppliedPhoto }) {
   return (
     <article className={`${cardClass} group flex h-full flex-col`}>
       <Link to={`/posts/${post._id}`} className="relative block aspect-[1.48/1] overflow-hidden bg-[#183a2b]" aria-label={`Read ${post.title}`}>
-        <img
+        <SiteImage
           src={photo.src}
           alt={photo.alt}
           loading="lazy"
           decoding="async"
-          onError={(event) => {
-            event.currentTarget.onerror = null;
-            event.currentTarget.src = getBearPhoto(index + 1).src;
-          }}
+
           className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
         />
         <span className="absolute left-4 top-4 rounded-full border border-emerald-100/20 bg-[#071b16]/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-100 backdrop-blur">{category}</span>
@@ -102,7 +100,7 @@ function Posts() {
   return (
     <main className="min-h-screen bg-[#071b16] text-white">
       <section className="relative isolate flex min-h-[470px] items-end overflow-hidden sm:min-h-[540px] lg:min-h-[610px]">
-        <img src={getBearPhoto(0).src} alt="Indian sloth bear moving through its natural woodland habitat" fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full animate-cinematic object-cover object-center" />
+        <SiteImage src={getBearPhoto(0).src} alt="Indian sloth bear moving through its natural woodland habitat" fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full animate-cinematic object-cover object-center" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#04130f]/95 via-[#04130f]/65 to-[#04130f]/15" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#071b16] via-[#071b16]/25 to-[#071b16]/20" />
         <div className="photo-copy mx-auto w-full max-w-7xl px-5 pb-12 pt-32 sm:pb-16 md:px-8 lg:pb-20">

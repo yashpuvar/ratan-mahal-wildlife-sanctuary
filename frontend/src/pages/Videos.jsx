@@ -1,3 +1,4 @@
+import SiteImage from "../components/SiteImage";
 import { useEffect, useState } from "react";
 import api from "../lib/api";
 import { getBearPhoto } from "../lib/bearPhotos";
@@ -47,7 +48,7 @@ function VideoCard({ video, onPlay }) {
   const demo = Boolean(video.source);
   const poster = demo
     ? video.poster
-    : getBearPhoto(video.posterIndex || 0).src;
+    : video.thumbnail || getBearPhoto(video.posterIndex || 0).src;
   const title = video.title || "Sloth Bear Documentary";
 
   return (
@@ -58,17 +59,12 @@ function VideoCard({ video, onPlay }) {
         aria-label={`Play ${title}`}
         className="relative block aspect-video w-full overflow-hidden bg-black text-left"
       >
-        <img
+        <SiteImage
           src={poster}
           alt={`Video thumbnail: ${title}`}
           loading="lazy"
           className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-          onError={(event) => {
-            if (event.currentTarget.dataset.fallbackApplied) return;
-            event.currentTarget.dataset.fallbackApplied = "true";
-            event.currentTarget.alt = `Sloth bear image fallback: ${getBearPhoto(video.posterIndex || 0).alt}`;
-            event.currentTarget.src = getBearPhoto(video.posterIndex || 0).src;
-          }}
+
         />
         <span className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/10 transition group-hover:from-black/65" />
         <span className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-black/35 text-xl text-white shadow-lg backdrop-blur-sm transition group-hover:scale-110 group-hover:bg-emerald-600">
@@ -150,7 +146,7 @@ function Videos() {
   return (
     <main className="min-h-screen bg-[#04130f] text-white">
       <section className="relative isolate overflow-hidden border-b border-white/10">
-        <img
+        <SiteImage
           src={getBearPhoto(5).src}
           alt="Indian sloth bear in a forest habitat"
           fetchPriority="high"
@@ -213,17 +209,12 @@ function Videos() {
                   aria-label={`Play ${featuredVideo.title}`}
                   className="group relative block aspect-video overflow-hidden bg-black text-left lg:aspect-auto lg:min-h-[390px]"
                 >
-                <img
+                <SiteImage
                   src={featuredVideo.poster}
                   alt={`Video thumbnail: ${featuredVideo.title}`}
                   fetchPriority="high"
                   className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                  onError={(event) => {
-                    if (event.currentTarget.dataset.fallbackApplied) return;
-                    event.currentTarget.dataset.fallbackApplied = "true";
-                    event.currentTarget.alt = `Illustrative sloth bear photograph: ${getBearPhoto(0).alt}`;
-                    event.currentTarget.src = getBearPhoto(0).src;
-                  }}
+
                 />
                   <span className="absolute inset-0 bg-black/15 transition group-hover:bg-black/30" />
                   <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-black/35 text-2xl text-white shadow-xl backdrop-blur-sm transition group-hover:scale-110 group-hover:bg-emerald-600">
@@ -232,7 +223,7 @@ function Videos() {
                 </button>
               ) : (
                 <button type="button" onClick={() => playVideo(featuredVideo)} aria-label={`Play ${featuredVideo.title}`} className="group relative block aspect-video overflow-hidden bg-black text-left lg:aspect-auto lg:min-h-[390px]">
-                  <img src={getBearPhoto(featuredVideo.posterIndex).src} alt={`Indian sloth bear video thumbnail: ${featuredVideo.title}`} fetchPriority="high" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                  <SiteImage src={featuredVideo.thumbnail || getBearPhoto(featuredVideo.posterIndex).src} alt={`Indian sloth bear video thumbnail: ${featuredVideo.title}`} fetchPriority="high" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                   <span className="absolute inset-0 bg-black/20 transition group-hover:bg-black/35" />
                   <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-black/35 text-2xl text-white shadow-xl backdrop-blur-sm transition group-hover:scale-110 group-hover:bg-emerald-600"><span className="ml-1" aria-hidden="true">▶</span></span>
                 </button>
@@ -311,6 +302,7 @@ function Videos() {
                   playsInline
                   preload="none"
                   onError={() => setPlayerFailed(true)}
+
                 />
               ) : (
                 <iframe

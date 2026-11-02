@@ -1,3 +1,4 @@
+import SiteImage from "./SiteImage";
 
 import { useEffect, useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
@@ -104,7 +105,7 @@ function Navbar() {
           {/* Login / Profile */}
           {user ? (
             <div className="flex items-center gap-3">
-              <img
+              <SiteImage
                 src={user.picture || "https://placehold.co/40"}
                 alt="Profile"
                 className="h-9 w-9 rounded-full border border-green-400 object-cover"
@@ -174,7 +175,7 @@ function Navbar() {
             {user ? (
               <>
                 <div className="flex items-center gap-3">
-                  <img
+                  <SiteImage
                     src={user.picture || "https://placehold.co/40"}
                     alt="Profile"
                     className="h-9 w-9 rounded-full border border-green-400 object-cover"

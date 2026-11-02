@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+import SiteImage from "../components/SiteImage";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../lib/api";
 import { BEAR_PHOTOS, getBearPhoto } from "../lib/bearPhotos";
@@ -149,13 +150,11 @@ function CreateGallery() {
             {/* Image Preview */}
             {formData.image && (
               <div className="overflow-hidden rounded-xl border border-gray-200">
-                <img
+                <SiteImage
                   src={formData.image}
                   alt="Selected Indian sloth bear photograph"
                   className="h-64 w-full object-cover"
-                  onError={(event) => {
-                    event.currentTarget.style.display = "none";
-                  }}
+
                 />
               </div>
             )}

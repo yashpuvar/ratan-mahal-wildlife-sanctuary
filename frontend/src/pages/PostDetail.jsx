@@ -1,8 +1,8 @@
+import SiteImage from "../components/SiteImage";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import UiIcon from "../components/UiIcon";
 import api from "../lib/api";
-import { getBearPhoto } from "../lib/bearPhotos";
 import { formatPostDate, getPostCategory, getPostPhoto, getUniquePostPhotos } from "../lib/postEditorial";
 import { PostCard } from "./Posts";
 
@@ -97,7 +97,7 @@ function PostDetail() {
   return (
     <main className="min-h-screen bg-[#071b16] text-white">
       <section className="relative isolate flex min-h-[380px] items-end overflow-hidden sm:min-h-[480px] lg:min-h-[560px]">
-        <img src={photo.src} alt={photo.alt} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getBearPhoto(1).src; }} />
+        <SiteImage src={photo.src} alt={photo.alt} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center"  />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#04130f]/90 via-[#04130f]/55 to-[#04130f]/10" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#071b16] via-transparent to-[#071b16]/20" />
         <div className="photo-copy mx-auto w-full max-w-7xl px-5 pb-12 pt-32 md:px-8 md:pb-16">

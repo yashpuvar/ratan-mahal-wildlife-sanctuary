@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+import SiteImage from "../components/SiteImage";
+import { useState } from "react";
 import api from "../lib/api";
 import { getBearPhoto } from "../lib/bearPhotos";
 import { SanctuaryStatusPanel } from "../components/SanctuaryStatus";
@@ -64,7 +65,7 @@ const handleSubmit = async (event) => {
     <main className="min-h-screen bg-[#061a17] text-white">
       {/* HERO SECTION */}
       <section className="relative overflow-hidden py-24">
-        <img
+        <SiteImage
           src={getBearPhoto(6).src}
           alt={getBearPhoto(6).alt}
           className="absolute inset-0 h-full w-full object-cover"
@@ -358,7 +359,7 @@ const handleSubmit = async (event) => {
 
             {/* Map placeholder */}
             <div className="relative mt-6 flex min-h-[300px] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#0d332a]">
-              <img
+              <SiteImage
                 src="https://images.unsplash.com/photo-1524666041070-9d87656c25bb?auto=format&fit=crop&w=1200&q=85"
                 alt="Map location placeholder"
                 className="absolute inset-0 h-full w-full object-cover opacity-30"

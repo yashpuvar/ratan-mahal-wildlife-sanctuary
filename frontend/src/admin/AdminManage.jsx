@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from "react";
+import SiteImage from "../components/SiteImage";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../lib/api";
 import { getBearPhoto } from "../lib/bearPhotos";
@@ -382,8 +383,8 @@ const handleDeleteVideo = async (videoId, title) => {
             key={item._id}
             className="overflow-hidden rounded-2xl bg-white text-[#10231e] shadow-xl"
           >
-            <img
-              src={getBearPhoto(index).src}
+            <SiteImage
+              src={item.image || item.imageUrl || getBearPhoto(index).src}
               alt={getBearPhoto(index).alt}
               className="h-52 w-full object-cover"
             />
@@ -452,8 +453,8 @@ const handleDeleteVideo = async (videoId, title) => {
                     className="overflow-hidden rounded-2xl bg-white text-[#10231e] shadow-xl"
                   >
                     <div className="flex gap-4 p-5">
-                      <img
-                        src={getBearPhoto(index).src}
+                      <SiteImage
+                        src={post.image || getBearPhoto(index).src}
                         alt={getBearPhoto(index).alt}
                         className="h-24 w-24 shrink-0 rounded-xl object-cover"
                       />
@@ -532,8 +533,8 @@ const handleDeleteVideo = async (videoId, title) => {
             className="overflow-hidden rounded-2xl bg-white text-[#10231e] shadow-xl"
           >
             <div className="relative h-48">
-              <img
-                src={getBearPhoto(index).src}
+              <SiteImage
+                src={video.thumbnail || getBearPhoto(index).src}
                 alt={getBearPhoto(index).alt}
                 className="h-full w-full object-cover"
               />

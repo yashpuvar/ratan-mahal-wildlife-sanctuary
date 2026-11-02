@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+import SiteImage from "../components/SiteImage";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../lib/api";
 import { BEAR_PHOTOS, getBearPhoto } from "../lib/bearPhotos";
@@ -177,13 +178,11 @@ function CreateVideo() {
             </div>
 
             {formData.thumbnail && (
-              <img
+              <SiteImage
                 src={formData.thumbnail}
                 alt="Selected Indian sloth bear video thumbnail"
                 className="h-60 w-full rounded-xl object-cover"
-                onError={(event) => {
-                  event.currentTarget.style.display = "none";
-                }}
+
               />
             )}
 

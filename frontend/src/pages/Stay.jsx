@@ -1,3 +1,4 @@
+import SiteImage from "../components/SiteImage";
 import { useEffect, useState } from "react";
 import api from "../lib/api";
 import { StatusIndicator } from "../components/SanctuaryStatus";
@@ -128,7 +129,7 @@ function Stay() {
   return (
     <main className="stay-page min-h-screen bg-white text-[#333333]">
       <section className="relative isolate flex min-h-[540px] items-end overflow-hidden sm:min-h-[620px]">
-        <img src={stayPhotos[0].src} alt={stayPhotos[0].alt} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
+        <SiteImage src={stayPhotos[0].src} alt={stayPhotos[0].alt} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-white/85 via-white/65 to-white/20" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-white/60 via-transparent to-white/10" />
         <div className="mx-auto w-full max-w-7xl px-5 pb-14 pt-32 sm:pb-20 md:px-8">
@@ -154,7 +155,7 @@ function Stay() {
             <p className="mt-4 text-sm leading-6 text-[#6a756c]">Photos and descriptions here are illustrative. No room capacity, facility, price or live availability is stated because those details are not configured in the booking data.</p>
           </div>
           <button type="button" onClick={() => setSelectedPhoto(1)} className="group relative block aspect-[4/3] overflow-hidden rounded-3xl bg-stone-200 text-left shadow-xl">
-            <img src={stayPhotos[2].src} alt={stayPhotos[2].alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]" />
+            <SiteImage src={stayPhotos[2].src} alt={stayPhotos[2].alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]" />
             <span className="absolute bottom-4 left-4 rounded-full border border-white/35 bg-black/40 px-4 py-2 text-xs font-semibold text-white backdrop-blur">{stayPhotos[2].caption}</span>
           </button>
         </div>
@@ -173,7 +174,7 @@ function Stay() {
             {stayOptions.map((option, index) => (
               <article key={option.type} className="group overflow-hidden rounded-2xl border border-[#E3EAE4] bg-white shadow-lg shadow-[#183D2B]/[0.08] transition duration-300 hover:-translate-y-1 hover:border-[#9CBBA4]">
                 <button type="button" onClick={() => setSelectedPhoto(stayPhotos.findIndex((photo) => photo.src === option.image))} className="block aspect-[1.35/1] w-full overflow-hidden bg-[#142c23] text-left" aria-label={`View photo for ${option.title}`}>
-                  <img src={option.image} alt={option.imageAlt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                  <SiteImage src={option.image} alt={option.imageAlt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                 </button>
                 <div className="p-6 sm:p-7">
                   <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#287A4B]">Enquiry option 0{index + 1}</p>
@@ -201,7 +202,7 @@ function Stay() {
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               {stayPhotos.map((photo, index) => (
                 <button key={photo.src} type="button" onClick={() => setSelectedPhoto(index)} className={`group relative overflow-hidden rounded-2xl bg-stone-200 text-left ${index === 0 ? "col-span-2 row-span-2 aspect-[2/1] lg:aspect-auto" : "aspect-[4/3]"}`} aria-label={`Open photo: ${photo.caption}`}>
-                  <img src={photo.src} alt={photo.alt} loading={index < 4 ? "eager" : "lazy"} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                  <SiteImage src={photo.src} alt={photo.alt} loading={index < 4 ? "eager" : "lazy"} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                   <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-4 pt-10 text-left"><span className="block text-sm font-semibold text-white">{photo.caption}</span><span className="mt-1 block text-[11px] text-white/80">Illustrative stock photo</span></span>
                 </button>
               ))}
@@ -243,9 +244,9 @@ function Stay() {
         </div>
       </section>
 
-      {selectedStay && <div className="fixed inset-0 z-[90] grid place-items-center bg-black/80 p-4 backdrop-blur-sm" onClick={() => setSelectedStay(null)} role="presentation"><section role="dialog" aria-modal="true" aria-labelledby="stay-dialog-title" className="w-full max-w-xl overflow-hidden rounded-3xl bg-[#f3f5ef] text-[#17281f] shadow-2xl" onClick={(event) => event.stopPropagation()}><img src={selectedStay.image} alt={selectedStay.imageAlt} className="h-56 w-full object-cover sm:h-72" /><div className="p-6 sm:p-8"><p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-800">Enquiry option</p><h2 id="stay-dialog-title" className="mt-2 font-serif text-3xl font-semibold">{selectedStay.title}</h2><p className="mt-4 text-sm leading-6 text-[#56645a]">{selectedStay.summary} Current facilities, pricing, occupancy and availability should be confirmed directly with the team.</p><div className="mt-6 flex flex-wrap gap-3"><button type="button" onClick={() => chooseStay(selectedStay.type)} className="rounded-full bg-emerald-700 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-800">Enquire about this option</button><button type="button" onClick={() => setSelectedStay(null)} className="rounded-full border border-stone-400 px-5 py-3 text-sm font-semibold">Close</button></div></div></section></div>}
+      {selectedStay && <div className="fixed inset-0 z-[90] grid place-items-center bg-black/80 p-4 backdrop-blur-sm" onClick={() => setSelectedStay(null)} role="presentation"><section role="dialog" aria-modal="true" aria-labelledby="stay-dialog-title" className="w-full max-w-xl overflow-hidden rounded-3xl bg-[#f3f5ef] text-[#17281f] shadow-2xl" onClick={(event) => event.stopPropagation()}><SiteImage src={selectedStay.image} alt={selectedStay.imageAlt} className="h-56 w-full object-cover sm:h-72" /><div className="p-6 sm:p-8"><p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-800">Enquiry option</p><h2 id="stay-dialog-title" className="mt-2 font-serif text-3xl font-semibold">{selectedStay.title}</h2><p className="mt-4 text-sm leading-6 text-[#56645a]">{selectedStay.summary} Current facilities, pricing, occupancy and availability should be confirmed directly with the team.</p><div className="mt-6 flex flex-wrap gap-3"><button type="button" onClick={() => chooseStay(selectedStay.type)} className="rounded-full bg-emerald-700 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-800">Enquire about this option</button><button type="button" onClick={() => setSelectedStay(null)} className="rounded-full border border-stone-400 px-5 py-3 text-sm font-semibold">Close</button></div></div></section></div>}
 
-      {selectedPhoto !== null && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm" onClick={() => setSelectedPhoto(null)} role="dialog" aria-modal="true" aria-label="Stay photo gallery"><button type="button" className="absolute right-4 top-4 rounded-full bg-white/15 px-4 py-2 text-sm text-white" onClick={() => setSelectedPhoto(null)} aria-label="Close photo">Close ×</button><button type="button" className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/15 px-4 py-3 text-3xl text-white sm:left-6" onClick={(event) => { event.stopPropagation(); setSelectedPhoto((selectedPhoto - 1 + stayPhotos.length) % stayPhotos.length); }} aria-label="Previous photo">‹</button><figure className="w-full max-w-5xl" onClick={(event) => event.stopPropagation()}><img src={stayPhotos[selectedPhoto].src} alt={stayPhotos[selectedPhoto].alt} className="mx-auto max-h-[78vh] w-auto max-w-full rounded-2xl object-contain" /><figcaption className="mt-3 text-center"><span className="block text-sm font-medium text-white">{stayPhotos[selectedPhoto].caption}</span><span className="mt-1 block text-xs text-white/80">Illustrative stock photo · <a href={stayPhotos[selectedPhoto].source} target="_blank" rel="noreferrer" className="underline underline-offset-4">{stayPhotos[selectedPhoto].credit}</a></span></figcaption></figure><button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/15 px-4 py-3 text-3xl text-white sm:right-6" onClick={(event) => { event.stopPropagation(); setSelectedPhoto((selectedPhoto + 1) % stayPhotos.length); }} aria-label="Next photo">›</button></div>}
+      {selectedPhoto !== null && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm" onClick={() => setSelectedPhoto(null)} role="dialog" aria-modal="true" aria-label="Stay photo gallery"><button type="button" className="absolute right-4 top-4 rounded-full bg-white/15 px-4 py-2 text-sm text-white" onClick={() => setSelectedPhoto(null)} aria-label="Close photo">Close ×</button><button type="button" className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/15 px-4 py-3 text-3xl text-white sm:left-6" onClick={(event) => { event.stopPropagation(); setSelectedPhoto((selectedPhoto - 1 + stayPhotos.length) % stayPhotos.length); }} aria-label="Previous photo">‹</button><figure className="w-full max-w-5xl" onClick={(event) => event.stopPropagation()}><SiteImage src={stayPhotos[selectedPhoto].src} alt={stayPhotos[selectedPhoto].alt} className="mx-auto max-h-[78vh] w-auto max-w-full rounded-2xl object-contain" /><figcaption className="mt-3 text-center"><span className="block text-sm font-medium text-white">{stayPhotos[selectedPhoto].caption}</span><span className="mt-1 block text-xs text-white/80">Illustrative stock photo · <a href={stayPhotos[selectedPhoto].source} target="_blank" rel="noreferrer" className="underline underline-offset-4">{stayPhotos[selectedPhoto].credit}</a></span></figcaption></figure><button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/15 px-4 py-3 text-3xl text-white sm:right-6" onClick={(event) => { event.stopPropagation(); setSelectedPhoto((selectedPhoto + 1) % stayPhotos.length); }} aria-label="Next photo">›</button></div>}
     </main>
   );
 }

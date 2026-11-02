@@ -1,3 +1,4 @@
+import SiteImage from "../components/SiteImage";
 import { Link } from "react-router-dom";
 import { getBearPhoto } from "../lib/bearPhotos";
 
@@ -14,7 +15,7 @@ function About() {
   return (
     <main className="bg-[#071b16] text-white">
       <section className="relative isolate flex min-h-[430px] items-end overflow-hidden md:min-h-[540px]">
-        <img src={hero.src} alt={hero.alt} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover" />
+        <SiteImage src={hero.src} alt={hero.alt} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#061711]/90 via-[#061711]/55 to-[#061711]/20" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#061711]/80 to-transparent" />
         <div className="photo-copy mx-auto w-full max-w-7xl px-5 pb-14 pt-32 md:px-8 md:pb-20">
@@ -28,7 +29,7 @@ function About() {
       <section className="bg-[#f3f5ef] py-16 text-[#17281f] md:py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div className="relative order-2 lg:order-1">
-            <img src={forestPhoto.src} alt={forestPhoto.alt} loading="lazy" className="aspect-[4/3] w-full rounded-3xl object-cover shadow-xl" />
+            <SiteImage src={forestPhoto.src} alt={forestPhoto.alt} loading="lazy" className="aspect-[4/3] w-full rounded-3xl object-cover shadow-xl" />
             <p className="photo-copy absolute bottom-4 left-4 rounded-full bg-black/55 px-4 py-2 text-xs text-white backdrop-blur">Illustrative sloth bear photograph</p>
           </div>
           <div className="order-1 lg:order-2">
