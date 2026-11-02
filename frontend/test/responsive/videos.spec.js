@@ -27,7 +27,7 @@ for (const width of [320, 375, 768, 1440]) {
 }
 
 test('selection creates one privacy player, supports failure recovery and keyboard dismissal', async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 900 });
+  await page.setViewportSize({ width: 320, height: 900 });
   await mockApi(page);
   await page.addInitScript(() => {
     window.YT = { Player: class {
@@ -54,6 +54,8 @@ test('selection creates one privacy player, supports failure recovery and keyboa
   await expect(iframe).toHaveAttribute('src', /youtube-nocookie.com\/embed\/7DB1MdR_BiY\?autoplay=0/);
   await expect(iframe).toHaveAttribute('allowfullscreen', '');
   const bounds = await iframe.boundingBox();
+  expect(bounds.x).toBeGreaterThanOrEqual(0);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(320);
   expect(bounds.y).toBeGreaterThanOrEqual(0);
   expect(bounds.y + bounds.height).toBeLessThanOrEqual(900);
   expect(bounds.height).toBeGreaterThanOrEqual(200);

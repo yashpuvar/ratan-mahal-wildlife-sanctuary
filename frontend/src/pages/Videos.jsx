@@ -328,7 +328,7 @@ function Videos() {
         <div role="dialog" aria-modal="true" aria-label={`Video player: ${selectedVideo.title || "Sloth bear video"}`} className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/90 p-4" onClick={() => setSelectedVideo(null)}>
           <div className="relative my-auto max-h-[95dvh] w-full max-w-5xl overflow-y-auto pt-12" onClick={(event) => event.stopPropagation()}>
             <button ref={closeButton} type="button" onClick={() => setSelectedVideo(null)} className="absolute right-0 top-0 rounded-full bg-white px-4 py-2 text-lg font-bold text-[#061a17] transition hover:bg-emerald-300" aria-label="Close video">✕</button>
-            <div className="aspect-video min-h-[200px] overflow-hidden rounded-xl bg-black">
+            <div className="aspect-video min-h-[200px] w-full overflow-hidden rounded-xl bg-black">
               {playerFailed ? (
                 <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-white">
                   <p>This video could not be played here.</p>
