@@ -1,0 +1,242 @@
+@import "tailwindcss";
+
+:root {
+  --forest-950: #ffffff;
+  --forest-900: #f7f9f6;
+  --forest-850: #f7f9f6;
+  --forest-800: #ffffff;
+  --leaf-400: #347a50;
+  --leaf-500: #245c3b;
+  --earth-100: #f7f9f6;
+  --earth-700: #536257;
+  --surface: #ffffff;
+  --surface-alt: #f7f9f6;
+  --heading: #183d2b;
+  --body-text: #333333;
+  --forest-button: #245c3b;
+  --forest-button-hover: #347a50;
+  --soft-border: #e3eae4;
+  --radius-card: 1.25rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--surface);
+  color: var(--body-text);
+  font-family: Inter, "Segoe UI", Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+.font-serif {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+main {
+  background-color: var(--surface) !important;
+  color: var(--body-text) !important;
+  animation: page-enter 550ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+main.text-white,
+main[class~="text-white"] {
+  color: var(--body-text) !important;
+}
+
+/* Reuse the existing dark-surface utility classes as clean, light theme surfaces. */
+main [class~="bg-[#061a17]"], main [class~="bg-[#061e17]"], main [class~="bg-[#071b16]"], main [class~="bg-[#020d0a]"],
+main [class~="bg-[#04130f]"], main [class~="bg-[#03140f]"], main [class~="bg-[#03100d]"],
+main [class~="bg-[#041411]"], main [class~="bg-[#08231e]"], main [class~="bg-[#0a211a]"],
+main [class~="bg-[#0a211b]"], main [class~="bg-[#061e17]"], main [class~="bg-[#102920]"],
+main [class~="bg-[#183a2b]"], main [class~="bg-[#142c23]"], main [class~="bg-[#0d332a]"],
+main [class~="bg-[#08231e]"],
+body #root [class~="bg-[#061a17]"],
+body > #root > div > [class~="bg-[#061a17]"] {
+  background-color: var(--surface) !important;
+  color: var(--body-text);
+}
+
+[class~="bg-[#061a17]"][class~="text-white"] {
+  background-color: var(--surface) !important;
+  color: var(--body-text) !important;
+}
+
+main section[class~="bg-[#03140f]"], main section[class~="bg-[#03100d]"],
+main section[class~="bg-[#041411]"], main section[class~="bg-[#08231e]"],
+main section[class~="bg-[#071b16]"], main section[class~="bg-[#0a211a]"] {
+  background-color: var(--surface-alt) !important;
+}
+
+main [class~="bg-[#102920]"], main [class~="bg-[#0a211a]"], main [class~="bg-[#0a211b]"],
+main [class~="bg-[#061e17]"], main [class~="bg-[#061a17]"] {
+  background-color: var(--surface) !important;
+}
+
+/* Preserve dark photo overlays and their white copy while giving normal content legible ink colors. */
+main [class~="text-white"]:not(button):not(a):not(button *):not(a *):not(figure *):not([role="dialog"] *):not(.photo-copy *) {
+  color: var(--heading) !important;
+}
+
+main :is(.text-gray-200, .text-gray-300, .text-stone-200, .text-stone-300):not(button *):not(a *):not(figure *):not([role="dialog"] *):not(.photo-copy *) {
+  color: #333333 !important;
+}
+
+main :is(.text-gray-400, .text-gray-500, .text-gray-600, .text-stone-400, .text-stone-500, .text-stone-600):not(button *):not(a *):not(figure *):not([role="dialog"] *):not(.photo-copy *) {
+  color: #536257 !important;
+}
+
+main .photo-copy,
+main .photo-copy [class~="text-white"],
+main .photo-copy [class~="text-white/65"],
+main .photo-copy [class~="text-white/70"],
+main .photo-copy [class~="text-white/75"],
+main .photo-copy [class~="text-white/80"],
+main .photo-copy [class~="text-white/85"] {
+  color: #ffffff !important;
+}
+
+main .photo-copy .text-gray-200,
+main .photo-copy .text-gray-300,
+main .photo-copy .text-stone-200,
+main .photo-copy .text-stone-300 {
+  color: #e8eee9 !important;
+}
+
+main a.text-white:not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-gradient"]):not([class*="bg-[#245C3B]"]):not([class*="bg-[#347A50]"]):not(.photo-copy a) {
+  color: var(--heading) !important;
+}
+
+main .photo-copy a.text-white {
+  color: #ffffff !important;
+}
+
+/* Light photo hero links use a bespoke forest background and keep white button copy. */
+main.stay-page a.text-white {
+  color: #ffffff !important;
+}
+
+main :is(.text-emerald-100, .text-emerald-200, .text-emerald-300, .text-emerald-400, .text-green-400) {
+  color: #245c3b !important;
+}
+
+main .photo-copy :is(.text-emerald-100, .text-emerald-200, .text-emerald-300, .text-emerald-400, .text-green-400) {
+  color: #a7f3c7 !important;
+}
+
+main button .text-emerald-200,
+main button .text-emerald-300,
+main figure .text-emerald-200,
+main figure .text-emerald-300 {
+  color: #a7f3c7 !important;
+}
+
+main :is([class~="border-white/5"], [class~="border-white/10"], [class~="border-white/15"], [class~="border-white/20"], [class~="border-white/30"]) {
+  border-color: var(--soft-border) !important;
+}
+
+main .photo-copy :is([class~="border-white/5"], [class~="border-white/10"], [class~="border-white/15"], [class~="border-white/20"], [class~="border-white/30"], [class~="border-white/35"]) {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+:is(button, a)[class~="bg-green-600"], :is(button, a)[class~="bg-green-700"], :is(button, a)[class~="bg-emerald-700"] {
+  background-color: var(--forest-button) !important;
+  color: #ffffff !important;
+}
+
+:is(button, a)[class~="bg-green-600"]:hover, :is(button, a)[class~="bg-green-700"]:hover, :is(button, a)[class~="bg-emerald-700"]:hover {
+  background-color: var(--forest-button-hover) !important;
+}
+
+:is(button, a)[class~="bg-emerald-500"], :is(button, a)[class~="bg-emerald-600"], :is(button, a)[class~="bg-green-500"] {
+  background-color: var(--forest-button) !important;
+  color: #ffffff !important;
+}
+
+:is(button, a)[class~="from-emerald-500"][class~="to-green-600"] {
+  background-image: none !important;
+  background-color: var(--forest-button) !important;
+  color: #ffffff !important;
+}
+
+:is(button, a)[class~="bg-emerald-500"]:hover, :is(button, a)[class~="bg-emerald-600"]:hover,
+:is(button, a)[class~="bg-green-500"]:hover, :is(button, a)[class~="hover:bg-emerald-300"]:hover,
+:is(button, a)[class~="hover:bg-green-700"]:hover {
+  background-color: var(--forest-button-hover) !important;
+}
+
+:is(button, a)[class~="from-emerald-500"][class~="to-green-600"]:hover {
+  background-color: var(--forest-button-hover) !important;
+}
+
+header {
+  color: var(--heading);
+}
+
+footer {
+  border-color: var(--soft-border) !important;
+  background-color: var(--surface-alt) !important;
+  color: var(--body-text);
+}
+
+footer .text-white,
+header .text-white:not(button):not(a):not(button *):not(a *) {
+  color: var(--heading) !important;
+}
+
+footer :is(.text-gray-400, .text-gray-500),
+header .text-gray-200 {
+  color: #536257 !important;
+}
+
+.page-enter {
+  animation: page-enter 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Cinematic Slow Zoom Effect */
+@keyframes cinematicZoom {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-cinematic {
+  animation: cinematicZoom 24s ease-in-out infinite;
+}
+
+/* Subtle Mist/Vignette Effect */
+.cinematic-vignette {
+  background: radial-gradient(
+    circle at center,
+    rgba(2, 13, 10, 0.4) 0%,
+    rgba(2, 13, 10, 0.85) 70%,
+    rgba(2, 13, 10, 0.98) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
