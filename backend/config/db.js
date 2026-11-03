@@ -26,6 +26,13 @@ const connectionErrorMessage = (error) => {
   return "MongoDB connection failed. Check Atlas cluster availability, DNS/network access, the IP access list, and TLS settings. Connection details have been omitted to protect credentials.";
 };
 
+// Preserve an explicitly selected URI database, but never silently use Atlas's "test" default.
+const resolveDatabaseName = (uri, override) => {
+  if (override?.trim()) return override.trim();
+  const databasePath = uri.split("?")[0].replace(/^mongodb(?:\+srv)?:\/\/[^/]+/, "");
+  return databasePath && databasePath !== "/" ? undefined : "RatanMahal";
+};
+
 const connectDB = async () => {
   try {
     validateMongoUri(process.env.MONGODB_URI);
@@ -36,7 +43,7 @@ const connectDB = async () => {
   try {
     // An explicit database avoids Atlas URIs without a path silently using "test".
     // Keep URI-selected databases unchanged unless an override is configured.
-    const dbName = process.env.MONGODB_DB_NAME?.trim();
+    const dbName = resolveDatabaseName(process.env.MONGODB_URI, process.env.MONGODB_DB_NAME);
     await mongoose.connect(process.env.MONGODB_URI, dbName ? { dbName } : {});
 
     console.log(`MongoDB connected successfully (database: ${mongoose.connection.name})`);
@@ -50,3 +57,5 @@ const connectDB = async () => {
 module.exports = connectDB;
 module.exports.validateMongoUri = validateMongoUri;
 module.exports.connectionErrorMessage = connectionErrorMessage;
+
+module.exports.resolveDatabaseName = resolveDatabaseName;

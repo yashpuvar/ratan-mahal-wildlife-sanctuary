@@ -3,6 +3,16 @@ const assert = require("node:assert/strict");
 const { validateMongoUri, connectionErrorMessage } = require("../config/db");
 const mongoose = require("mongoose");
 const connectDB = require("../config/db");
+const { resolveDatabaseName } = require("../config/db");
+
+test("pathless Atlas URIs select the sanctuary database and explicit selections are preserved", () => {
+  for (const uri of ["mongodb+srv://user:pass@cluster.example.net", "mongodb+srv://user:pass@cluster.example.net/?retryWrites=true", "mongodb://host1:27017,host2:27017"]) {
+    assert.equal(resolveDatabaseName(uri), "RatanMahal");
+  }
+  assert.equal(resolveDatabaseName("mongodb://localhost/explicit?retryWrites=true"), undefined);
+  assert.equal(resolveDatabaseName("mongodb://localhost/test"), undefined);
+  assert.equal(resolveDatabaseName("mongodb://localhost/explicit", " RatanMahal "), "RatanMahal");
+});
 
 test("explicit database selection reaches the driver without rewriting the URI", async (t) => {
   const uri = "mongodb://127.0.0.1:27017/uriDatabase";
