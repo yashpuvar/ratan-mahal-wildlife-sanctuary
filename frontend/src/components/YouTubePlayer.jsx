@@ -46,6 +46,7 @@ export default function YouTubePlayer({ videoId, title }) {
             const iframe = event.target.getIframe();
             iframe.title = title;
             iframe.setAttribute('allowfullscreen', '');
+            iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen');
             iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
             setStatus('ready');
           },

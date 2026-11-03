@@ -26,3 +26,16 @@ test('saved post image survives selection', () => {
  const image = 'https://cdn.example.com/original.jpg';
  assert.equal(getPostPhoto({image}).src, image);
 });
+
+test('legacy absolute backend public assets return to the frontend while uploads stay on backend', () => {
+ for (const path of ['/images/posts/forested-hills-landscape.jpg', '/public/images/posts/forested-hills-landscape.jpg']) {
+  assert.equal(resolveImageUrl(backend + path), '/images/posts/forested-hills-landscape.jpg');
+ }
+ assert.equal(resolveImageUrl(backend + '/api/gallery/visitor/image/abc'), backend + '/api/gallery/visitor/image/abc');
+});
+
+test('Pexels originals are bounded for mobile without rewriting signed or custom query strings', () => {
+ const url = 'https://images.pexels.com/photos/24589420/pexels-photo-24589420.jpeg';
+ assert.equal(resolveImageUrl(url), url + '?auto=compress&cs=tinysrgb&w=1600');
+ assert.equal(resolveImageUrl(url + '?signature=a%2Fb&w=800'), url + '?signature=a%2Fb&w=800');
+});

@@ -5,7 +5,7 @@ async function mockApi(page, records = []) {
   await page.route('**/api/**', route => route.fulfill({ json: { success: true, data: records } }));
 }
 
-for (const width of [320, 375, 768, 1440]) {
+for (const width of [320, 375, 390, 768, 1440]) {
   test(`wildlife films load alongside published videos at ${width}px without loading players`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await mockApi(page, [{ _id: 'existing-video', title: 'Existing sanctuary film', youtubeId: 'existing123', category: 'Sanctuary' }]);
@@ -53,6 +53,7 @@ test('selection creates one privacy player, supports failure recovery and keyboa
   await expect(iframe).toHaveCount(1);
   await expect(iframe).toHaveAttribute('src', /youtube-nocookie.com\/embed\/7DB1MdR_BiY\?autoplay=0/);
   await expect(iframe).toHaveAttribute('allowfullscreen', '');
+  await expect(iframe).toHaveAttribute('allow', /encrypted-media/);
   const bounds = await iframe.boundingBox();
   expect(bounds.x).toBeGreaterThanOrEqual(0);
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(320);

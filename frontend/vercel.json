@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/gallery", "destination": "/index.html" },
     { "source": "/videos", "destination": "/index.html" },
     { "source": "/posts", "destination": "/index.html" },
     { "source": "/posts/:id", "destination": "/index.html" }
