@@ -37,9 +37,8 @@ function Login() {
       window.dispatchEvent(new Event("authChanged"));
 
       // Redirect to Dashboard
-      navigate("/admin");
+      navigate(response.data.admin?.mustChangePassword ? "/admin/change-password" : "/admin");
     } catch (err) {
-      console.error(err);
       setError(
         err.response?.data?.message || "Invalid credentials. Please try again."
       );

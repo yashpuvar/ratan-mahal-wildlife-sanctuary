@@ -19,6 +19,7 @@ import AdminManage from "./admin/AdminManage";
 import CreateGallery from "./admin/CreateGallery";
 import CreateVideo from "./admin/CreateVideo";
 import Login from "./admin/Login";
+import ChangePassword from "./admin/ChangePassword";
 import GoogleLogin from "./pages/GoogleLogin";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import SanctuaryStatusProvider from "./components/SanctuaryStatusProvider";
@@ -55,6 +56,7 @@ function App() {
 
   {/* Admin Login */}
   <Route path="/admin/login" element={<Login />} />
+  <Route path="/admin/change-password" element={<ChangePassword />} />
 
   {/* Protected Admin Pages */}
   <Route element={<AdminProtectedRoute />}>

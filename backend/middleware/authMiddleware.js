@@ -42,14 +42,24 @@ const requireUser = (req, res, next) => {
   });
 };
 
-const requireAdmin = (req, res, next) => {
+const authorizeAdmin = (allowPasswordChange) => (req, res, next) => {
   verifyToken(req, res, async () => {
     if (req.auth.role !== "admin") {
       return res.status(403).json({ success: false, message: "Administrator access required" });
     }
     try {
-      const admin = await Admin.findById(req.auth.id).select("name email");
+      const admin = await Admin.findById(req.auth.id).select("name email mustChangePassword passwordVersion temporaryPasswordExpiresAt");
       if (!admin) return res.status(401).json({ success: false, message: "Admin account no longer exists" });
+      if ((req.auth.credentialVersion || 0) !== (admin.passwordVersion || 0)) return res.status(401).json({ success: false, message: "Sign in again after password change" });
+      if (admin.mustChangePassword) {
+        if (!admin.temporaryPasswordExpiresAt || new Date(admin.temporaryPasswordExpiresAt).getTime() <= Date.now()) {
+          return res.status(401).json({ success: false, message: "Temporary credentials expired" });
+        }
+        if (req.auth.purpose !== "admin-password-change") return res.status(401).json({ success: false, message: "Restricted password-change sign-in required" });
+        if (!allowPasswordChange) return res.status(403).json({ success: false, code: "ADMIN_PASSWORD_CHANGE_REQUIRED", message: "Change your temporary password before accessing the dashboard" });
+      } else if (req.auth.purpose) {
+        return res.status(401).json({ success: false, message: "Password-change token cannot access the dashboard" });
+      }
       req.admin = admin;
       next();
     } catch {
@@ -58,4 +68,6 @@ const requireAdmin = (req, res, next) => {
   });
 };
 
-module.exports = { requireUser, requireAdmin };
+const requireAdmin = authorizeAdmin(false);
+const requireAdminIdentity = authorizeAdmin(true);
+module.exports = { requireUser, requireAdmin, requireAdminIdentity };
