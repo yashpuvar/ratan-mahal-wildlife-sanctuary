@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/admin/:path*", "destination": "/index.html" },
     { "source": "/gallery", "destination": "/index.html" },
     { "source": "/videos", "destination": "/index.html" },
     { "source": "/posts", "destination": "/index.html" },
