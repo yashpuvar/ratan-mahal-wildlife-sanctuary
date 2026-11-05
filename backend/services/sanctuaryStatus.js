@@ -25,7 +25,7 @@ const dateKey = ({ year, month, day }) => `${year}-${month}-${day}`;
 
 const findNextOpening = (settings, today, currentMinute) => {
   const todayIndex = DAY_NAMES.indexOf(today.weekday.toLowerCase());
-  for (let offset = 0; offset < 8; offset += 1) {
+  for (let offset = 0; offset < 367; offset += 1) {
     const weekday = DAY_NAMES[(todayIndex + offset) % 7];
     const daySchedule = settings.weeklyHours?.find((item) => item.day === weekday);
     if (!daySchedule || daySchedule.closed) continue;
@@ -45,46 +45,38 @@ const findNextOpening = (settings, today, currentMinute) => {
   return null;
 };
 
+const confirmedSchedule = settings => settings?.scheduleConfigured === true &&
+  Array.isArray(settings.weeklyHours) && settings.weeklyHours.length === 7 &&
+  new Set(settings.weeklyHours.map(item => item?.day)).size === 7 &&
+  settings.weeklyHours.every(item => item && DAY_NAMES.includes(item.day) && typeof item.closed === "boolean" &&
+    (item.closed || (toMinutes(item.openTime) !== null && toMinutes(item.closeTime) > toMinutes(item.openTime))));
+
 function calculateSanctuaryStatus(settings, now = new Date()) {
-  if (!settings) {
-    return { status: "unavailable", label: "Status unavailable", message: "Opening hours have not been confirmed yet.", timeZone: TIME_ZONE, nextOpening: null };
-  }
-
-  const override = settings.manualOverride || "none";
-  if (override === "open") return { status: "open", label: "Open Now", message: settings.manualOverrideReason || "Welcome! We are currently open.", timeZone: TIME_ZONE, nextOpening: null };
-  if (override === "closed") return { status: "closed", label: "Closed Now", message: settings.manualOverrideReason || "We are currently closed. Please check our opening hours.", timeZone: TIME_ZONE, nextOpening: null };
-  if (settings.temporaryClosure?.active) {
-    return { status: "closed", label: "Closed Now", message: settings.temporaryClosure.reason || "The sanctuary is temporarily closed.", timeZone: TIME_ZONE, nextOpening: null };
-  }
-  if (!settings.scheduleConfigured) {
-    return { status: "unavailable", label: "Status unavailable", message: "Opening hours have not been confirmed yet.", timeZone: TIME_ZONE, nextOpening: null };
-  }
-
   const local = getIndiaParts(now);
-  const today = dateKey(local);
+  const date = dateKey(local);
+  const day = local.weekday.toLowerCase();
+  const confirmed = confirmedSchedule(settings);
+  const schedule = Array.isArray(settings?.weeklyHours) ? settings.weeklyHours.find(item => item?.day === day) : null;
+  const holiday = Array.isArray(settings?.holidays) ? settings.holidays.find(item => item?.date === date) : null;
+  const today = confirmed ? { date, day, closed: Boolean(schedule.closed || holiday),
+    openTime: schedule.closed ? null : schedule.openTime, closeTime: schedule.closed ? null : schedule.closeTime,
+    closureReason: holiday ? (holiday.name || "Scheduled holiday") : schedule.closed ? "Weekly closed day" : "" } : null;
+  const result = (status, message, nextOpening = null) => ({ status,
+    label: { open: "Open Now", closed: "Closed Now", unconfirmed: "Hours Not Confirmed" }[status],
+    message, timeZone: TIME_ZONE, nextOpening, today, scheduleConfigured: confirmed });
+  // Emergency/temporary closures are safe even before hours are confirmed.
+  // Legacy manual-open values never bypass confirmed hours or any closure.
+  if (settings?.manualOverride === "closed") return result("closed", settings.manualOverrideReason || "The sanctuary is closed by an emergency override.");
+  if (settings?.temporaryClosure?.active) return result("closed", settings.temporaryClosure.reason || "The sanctuary is temporarily closed.");
+  if (!confirmed) return result("unconfirmed", settings?.scheduleConfigured ? "Opening hours need administrator review before they can be confirmed." : "Official sanctuary hours have not been confirmed. Please check before visiting.");
   const currentMinute = Number(local.hour) * 60 + Number(local.minute);
-  const minutesUntil = (time) => {
-    const openingMinute = toMinutes(time);
-    return openingMinute === null ? null : openingMinute - currentMinute;
-  };
-  const holiday = settings.holidays?.find((item) => item.date === today);
-  const daySchedule = settings.weeklyHours?.find((item) => item.day === local.weekday.toLowerCase());
   const nextOpening = findNextOpening(settings, local, currentMinute);
-  if (holiday) return { status: "closed", label: "Closed Now", message: holiday.name ? `Closed for ${holiday.name}.` : "We are currently closed for a scheduled holiday.", timeZone: TIME_ZONE, nextOpening };
-  if (!daySchedule || daySchedule.closed) return { status: "closed", label: "Closed Now", message: "We are currently closed today. Please check our opening hours.", timeZone: TIME_ZONE, nextOpening };
-
-  const openMinute = toMinutes(daySchedule.openTime);
-  const closeMinute = toMinutes(daySchedule.closeTime);
-  if (openMinute === null || closeMinute === null || closeMinute <= openMinute) {
-    return { status: "unavailable", label: "Status unavailable", message: "Opening hours need administrator review.", timeZone: TIME_ZONE, nextOpening: null };
-  }
-  if (currentMinute >= openMinute && currentMinute < closeMinute) {
-    return { status: "open", label: "Open Now", message: "Welcome! We are currently open.", timeZone: TIME_ZONE, nextOpening: null };
-  }
-  if (currentMinute < openMinute && minutesUntil(daySchedule.openTime) <= (settings.openingSoonMinutes || 60)) {
-    return { status: "openingSoon", label: "Opening Soon", message: `Opening at ${daySchedule.openTime} IST.`, timeZone: TIME_ZONE, nextOpening: { date: today, time: daySchedule.openTime, timeZone: TIME_ZONE } };
-  }
-  return { status: "closed", label: "Closed Now", message: "We are currently closed. Please check our opening hours.", timeZone: TIME_ZONE, nextOpening };
+  if (holiday) return result("closed", holiday.name ? "Closed for " + holiday.name + "." : "Closed for a scheduled holiday.", nextOpening);
+  if (schedule.closed) return result("closed", "Today is a scheduled weekly closed day.", nextOpening);
+  const openMinute = toMinutes(schedule.openTime);
+  const closeMinute = toMinutes(schedule.closeTime);
+  if (currentMinute >= openMinute && currentMinute < closeMinute) return result("open", "The sanctuary is open during its confirmed operating hours.");
+  return result("closed", currentMinute < openMinute ? "Today's confirmed opening time is " + schedule.openTime + " IST." : "The sanctuary has closed for today.", nextOpening);
 }
 
-module.exports = { calculateSanctuaryStatus, DAY_NAMES, toMinutes, TIME_ZONE };
+module.exports = { calculateSanctuaryStatus, confirmedSchedule, DAY_NAMES, toMinutes, TIME_ZONE };

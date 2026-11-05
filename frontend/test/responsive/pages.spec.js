@@ -4,6 +4,7 @@
 test.beforeEach(async ({ page }) => {
   await page.route('**/api/**', route => {
     const path = new URL(route.request().url()).pathname;
+    if (path === '/api/sanctuary/events') return route.fulfill({ contentType: 'text/event-stream', body: 'retry: 60000\n\n' });
     const json = path === '/api/admin/me' ? { admin: { role: 'admin', name: 'Fixture Admin' } }
       : path.endsWith('/hotel-status') ? { success: true, data: { open: true } }
       : { success: true, data: [] };

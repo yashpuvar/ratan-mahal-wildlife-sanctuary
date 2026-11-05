@@ -9,7 +9,9 @@ const {
 } = require("../controllers/sanctuaryController");
 
 const router = express.Router();
+const { streamSanctuaryChanges } = require("../services/sanctuaryEvents");
 
+router.get("/events", streamSanctuaryChanges);
 router.get("/status", getPublicStatus);
 router.get("/hours", getPublicHours);
 router.get("/admin/settings", requireAdmin, getAdminSettings);

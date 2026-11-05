@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const daySchema = new mongoose.Schema({
   day: { type: String, enum: ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"], required: true },
   closed: { type: Boolean, default: false },
-  openTime: { type: String, default: "09:00" },
-  closeTime: { type: String, default: "17:00" },
+  openTime: { type: String, default: "" },
+  closeTime: { type: String, default: "" },
 }, { _id: false });
 
 const holidaySchema = new mongoose.Schema({
@@ -18,12 +18,14 @@ const sanctuarySettingsSchema = new mongoose.Schema({
   openingSoonMinutes: { type: Number, min: 1, max: 180, default: 60 },
   weeklyHours: { type: [daySchema], default: () => [
     "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday",
-  ].map((day) => ({ day, closed: false, openTime: "09:00", closeTime: "17:00" })) },
+  ].map((day) => ({ day, closed: false, openTime: "", closeTime: "" })) },
   holidays: { type: [holidaySchema], default: [] },
   temporaryClosure: {
     active: { type: Boolean, default: false },
     reason: { type: String, trim: true, maxlength: 300, default: "" },
   },
+  // "open" is retained only to read legacy records; the API rejects it and status
+  // calculation ignores it. Only verified schedules can produce an open status.
   manualOverride: { type: String, enum: ["none", "open", "closed"], default: "none" },
   manualOverrideReason: { type: String, trim: true, maxlength: 300, default: "" },
   hotelOpen: { type: Boolean, default: false },

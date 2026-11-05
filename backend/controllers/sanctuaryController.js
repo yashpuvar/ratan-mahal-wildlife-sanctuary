@@ -1,5 +1,6 @@
 const SanctuarySettings = require("../models/SanctuarySettings");
 const { calculateSanctuaryStatus, DAY_NAMES } = require("../services/sanctuaryStatus");
+const { notifySanctuaryChange } = require("../services/sanctuaryEvents");
 
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -15,16 +16,28 @@ const safeSettings = (settings) => ({
   weeklyHours: settings.weeklyHours,
   holidays: settings.holidays,
   temporaryClosure: settings.temporaryClosure,
-  manualOverride: settings.manualOverride,
+  manualOverride: settings.manualOverride === "closed" ? "closed" : "none",
   manualOverrideReason: settings.manualOverrideReason,
 });
 
 const getSettings = async () => SanctuarySettings.findById("sanctuary").lean();
 
+const publicSnapshot = (settings, now = new Date()) => {
+  const status = calculateSanctuaryStatus(settings, now);
+  const hours = status.scheduleConfigured ? safeSettings(settings) : {
+    scheduleConfigured: false, weeklyHours: [], holidays: [],
+    temporaryClosure: { active: Boolean(settings?.temporaryClosure?.active), reason: settings?.temporaryClosure?.reason || "" },
+    manualOverride: settings?.manualOverride === "closed" ? "closed" : "none",
+  };
+  return { ...status, hours, checkedAt: now.toISOString(),
+    validUntil: new Date(Math.min(now.getTime() + 15000, Math.floor(now.getTime() / 60000) * 60000 + 60000)).toISOString() };
+};
+
 const getPublicStatus = async (req, res) => {
+  res.set("Cache-Control", "no-store");
   try {
     const settings = await getSettings();
-    res.json({ success: true, data: { ...calculateSanctuaryStatus(settings), scheduleConfigured: Boolean(settings?.scheduleConfigured) } });
+    res.json({ success: true, data: publicSnapshot(settings) });
   } catch (error) {
     console.error("Public sanctuary status lookup failed:", error.message);
     res.status(503).json({ success: false, message: "Sanctuary status is temporarily unavailable" });
@@ -32,11 +45,10 @@ const getPublicStatus = async (req, res) => {
 };
 
 const getPublicHours = async (req, res) => {
+  res.set("Cache-Control", "no-store");
   try {
     const settings = await getSettings();
-    const data = !settings || !settings.scheduleConfigured
-      ? { scheduleConfigured: false, weeklyHours: [], holidays: [], temporaryClosure: { active: Boolean(settings?.temporaryClosure?.active), reason: settings?.temporaryClosure?.reason || "" }, manualOverride: settings?.manualOverride || "none", openingSoonMinutes: settings?.openingSoonMinutes || 60 }
-      : safeSettings(settings);
+    const data = publicSnapshot(settings).hours;
     res.json({ success: true, data });
   } catch (error) {
     console.error("Public sanctuary hours lookup failed:", error.message);
@@ -55,14 +67,21 @@ const getAdminSettings = async (req, res) => {
 };
 
 const saveSettings = async (req, res) => {
-  const { weeklyHours, holidays, temporaryClosure, openingSoonMinutes, scheduleConfigured } = req.body;
+  const { weeklyHours, holidays, temporaryClosure, openingSoonMinutes = 60, scheduleConfigured } = req.body || {};
+  if (typeof scheduleConfigured !== "boolean") return res.status(400).json({ success: false, message: "Explicitly confirm whether these are verified official hours" });
   if (!Array.isArray(weeklyHours) || weeklyHours.length !== 7 || !Array.isArray(holidays)) {
     return res.status(400).json({ success: false, message: "A complete weekly schedule and holiday list are required" });
   }
   const days = new Set();
   for (const entry of weeklyHours) {
-    if (!entry || !DAY_NAMES.includes(entry.day) || days.has(entry.day) || typeof entry.closed !== "boolean" || !TIME_PATTERN.test(entry.openTime) || !TIME_PATTERN.test(entry.closeTime)) {
+    if (!entry || !DAY_NAMES.includes(entry.day) || days.has(entry.day) || typeof entry.closed !== "boolean" ||
+        typeof entry.openTime !== "string" || typeof entry.closeTime !== "string" ||
+        (entry.openTime !== "" && !TIME_PATTERN.test(entry.openTime)) || (entry.closeTime !== "" && !TIME_PATTERN.test(entry.closeTime))) {
       return res.status(400).json({ success: false, message: "Each weekday needs valid opening and closing times and a closed-day setting" });
+    }
+    const blank = entry.openTime === "" && entry.closeTime === "";
+    if (!entry.closed && ((scheduleConfigured && blank) || (!blank && (!entry.openTime || !entry.closeTime)))) {
+      return res.status(400).json({ success: false, message: "Enter verified opening and closing times for every open day before confirming the schedule" });
     }
     const [oh, om] = entry.openTime.split(":").map(Number);
     const [ch, cm] = entry.closeTime.split(":").map(Number);
@@ -93,7 +112,8 @@ const saveSettings = async (req, res) => {
         scheduleConfigured,
       },
     }, { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true });
-    res.json({ success: true, message: "Sanctuary hours saved", data: safeSettings(settings) });
+    notifySanctuaryChange();
+    res.json({ success: true, message: "Sanctuary hours saved", data: safeSettings(settings), publicStatus: publicSnapshot(settings) });
   } catch (error) {
     console.error("Admin sanctuary schedule save failed:", error.message);
     res.status(500).json({ success: false, message: "Could not save sanctuary hours" });
@@ -101,15 +121,16 @@ const saveSettings = async (req, res) => {
 };
 
 const saveOverride = async (req, res) => {
-  const { manualOverride, reason = "" } = req.body;
-  if (!(["none", "open", "closed"].includes(manualOverride)) || typeof reason !== "string" || reason.length > 300) {
-    return res.status(400).json({ success: false, message: "Choose a valid manual status and reason" });
+  const { manualOverride, reason = "" } = req.body || {};
+  if (!( ["none", "closed"].includes(manualOverride)) || typeof reason !== "string" || reason.length > 300) {
+    return res.status(400).json({ success: false, message: "Choose Automatic schedule or Emergency closed; opening requires confirmed operating hours" });
   }
   try {
     const settings = await SanctuarySettings.findByIdAndUpdate("sanctuary", {
       $set: { manualOverride, manualOverrideReason: reason.trim() },
     }, { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true });
-    res.json({ success: true, message: "Manual status override saved", data: safeSettings(settings) });
+    notifySanctuaryChange();
+    res.json({ success: true, message: "Manual status override saved", data: safeSettings(settings), publicStatus: publicSnapshot(settings) });
   } catch (error) {
     console.error("Admin sanctuary override save failed:", error.message);
     res.status(500).json({ success: false, message: "Could not save manual status" });

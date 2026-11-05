@@ -82,7 +82,7 @@ function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden items-center gap-6 text-sm font-medium lg:flex">
+        <div className="hidden items-center gap-4 text-sm font-medium xl:flex">
           {navLinks.map((link) => (
             <NavLink
               key={link.path}
@@ -136,7 +136,7 @@ function Navbar() {
         {/* Mobile Menu Button */}
         <button
           type="button"
-          className="text-2xl text-[#183D2B] lg:hidden"
+          className="text-2xl text-[#183D2B] xl:hidden"
           aria-label="Toggle menu"
           aria-expanded={isMenuOpen}
           aria-controls="mobile-navigation"
@@ -146,12 +146,16 @@ function Navbar() {
         </button>
       </nav>
 
+      <div className="border-t border-stone-100 px-5 pb-3 pt-2 xl:hidden">
+        <StatusIndicator compact />
+      </div>
+
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div id="mobile-navigation" className="border-t border-[#E3EAE4] bg-white px-5 py-5 shadow-lg lg:hidden">
+        <div id="mobile-navigation" className="border-t border-[#E3EAE4] bg-white px-5 py-5 shadow-lg xl:hidden">
           <div className="flex flex-col gap-4 text-sm font-medium">
 
-            <StatusIndicator compact className="w-fit" />
+
 
             {navLinks.map((link) => (
               <NavLink

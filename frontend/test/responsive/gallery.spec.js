@@ -5,7 +5,9 @@ for (const width of [320, 375, 390, 768, 1440]) {
   test(`all 12 gallery images decode and lightbox works at ${width}px without IntersectionObserver`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.addInitScript(() => { window.IntersectionObserver = undefined; });
-    await page.route('**/api/**', route => route.fulfill({ json: { success: true, data: [] } }));
+    await page.route('**/api/**', route => new URL(route.request().url()).pathname === '/api/sanctuary/events'
+      ? route.fulfill({ contentType: 'text/event-stream', body: 'retry: 60000\n\n' })
+      : route.fulfill({ json: { success: true, data: [] } }));
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto('/gallery');
